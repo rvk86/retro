@@ -1,10 +1,15 @@
 from __future__ import unicode_literals
+import xml.etree.ElementTree as ET
+import uuid
+import random
+from io import BytesIO
+from PIL import Image
 from django.conf import settings
 from django.db import models
+from django.core.files.base import ContentFile
 from django.contrib.postgres.fields import ArrayField
-import xml.etree.ElementTree as ET
-from PIL import Image
-from io import BytesIO
+import requests
+import cairosvg
 
 from helpers import parse_style, hex_to_rgba
 
@@ -14,6 +19,11 @@ class Map(models.Model):
     colors = ArrayField(models.CharField(max_length=7))
     background_color = models.CharField(max_length=7)
     svg = models.FileField(upload_to='maps/')
+    
+    
+    def save_svg(self, svg):
+        file_name = '{}.{}'.format(uuid.uuid4(), 'svg')
+        self.svg.save(file_name, ContentFile(svg))
     
     def get_cropped_google_map(self):
         payload = {
@@ -25,23 +35,23 @@ class Map(models.Model):
             'style': parse_style(settings.MAP_STYLE)
         }
         map_request = requests.get('https://maps.googleapis.com/maps/api/staticmap', params=payload)
-        with Image.open(BytesIO(map_request.content)) as f:
-            width = f.size[0]
-            height = f.size[1]
-            f = f.crop((0, 0, width, height - 50))
-            return f
+        with Image.open(BytesIO(map_request.content)) as img:
+            width = img.size[0]
+            height = img.size[1]
+            img = img.crop((0, 0, width, height - 50))
+            return img
             
-    def randomize_path_colors(self, svg, colors):
+    def randomize_path_colors(self, svg):
         xml = ET.fromstring(svg)
-        g = xml.find('{http://www.w3.org/2000/svg}g')
+        svg_g = xml.find('{http://www.w3.org/2000/svg}g')
 
-        for path in g.iter('{http://www.w3.org/2000/svg}path'):
-            path.set('fill', random.choice(colors))
+        for path in svg_g.iter('{http://www.w3.org/2000/svg}path'):
+            path.set('fill', random.choice(self.colors))
 
         return ET.tostring(xml)
         
     def _set_png_bg_color(self, img):
-        bg_color = hex_to_rgba(self.bg_color)
+        bg_color = hex_to_rgba(self.background_color)
         img_w, img_h = img.size
         
         background = Image.new('RGBA', (img_w, img_h), bg_color)
@@ -50,9 +60,9 @@ class Map(models.Model):
         return bg_img
     
     def _set_png_border(self, img, border_width):
-        bg_color = hex_to_rgba(self.bg_color)
+        bg_color = hex_to_rgba(self.background_color)
         img_w, img_h = img.size
-        border_img = Image.new('RGBA', (img_w + border_size, img_h + border_size), bg_color)
+        border_img = Image.new('RGBA', (img_w + border_width, img_h + border_width), bg_color)
         bg_w, bg_h = border_img.size
         offset = ((bg_w - img_w) / 2, (bg_h - img_h) / 2)
         border_img.paste(img, offset)
@@ -61,12 +71,12 @@ class Map(models.Model):
         
     def get_png(self, border_width):
         buffer_img = BytesIO()
-        png = cairosvg.svg2png(bytestring=ET.tostring(self.svg), write_to=buffer_img)
+        cairosvg.svg2png(bytestring=self.svg.read(), write_to=buffer_img)
         
         with Image.open(buffer_img) as img:
             img = self._set_png_bg_color(img)
             img = self._set_png_border(img, border_width)
             buffer_img.seek(0)
-            border.save(buffer_img, format='png')
+            img.save(buffer_img, format='png')
             buffer_img.seek(0)
             return buffer_img.read()

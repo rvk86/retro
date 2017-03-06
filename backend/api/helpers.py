@@ -2,8 +2,8 @@ import json, requests
 import xml.etree.ElementTree as ET
 
 # PARSE GOOGLE MAPS STYLE JSON (https://mapstyle.withgoogle.com/) AND REORDER TO OBJECT FOR URL
-def parse_style(json):
-    content = json.loads(json)
+def parse_style(json_str):
+    content = json.loads(json_str)
     styles = []
     for style in content:
         value = ''
@@ -40,7 +40,7 @@ def get_palette(id):
     
 
 def hex_to_rgba(color):
-    hex_code = bg_color[1:]
-    rgba = tuple(int(bg_color[i:i+2], 16) for i in (0, 2 ,4)) + (255,)
+    hex_code = color[1:]
+    rgba = tuple(int(hex_code[i:i+2], 16) for i in (0, 2 ,4)) + (255,)
     
     return rgba
