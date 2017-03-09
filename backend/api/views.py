@@ -12,7 +12,6 @@ from helpers import get_palette
 def map(request):
     if request.method == 'GET':
         params = request.query_params
-        # import ipdb; ipdb.set_trace()
         colors = get_palette(params['palette_id'])
         background_color = colors.pop(int(params['background_index']))
         
@@ -41,7 +40,6 @@ def map(request):
         svg = traced.stdout.read()
         svg = map_row.randomize_path_colors(svg)
         map_row.save_svg(svg)
-        map_row.save()
         
         result = map_row.get_png(100)
         

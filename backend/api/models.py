@@ -20,7 +20,6 @@ class Map(models.Model):
     background_color = models.CharField(max_length=7)
     svg = models.FileField(upload_to='maps/')
     
-    
     def save_svg(self, svg):
         file_name = '{}.{}'.format(uuid.uuid4(), 'svg')
         self.svg.save(file_name, ContentFile(svg))
@@ -34,6 +33,7 @@ class Map(models.Model):
             'key': settings.GOOGLE_API_KEY,
             'style': parse_style(settings.MAP_STYLE)
         }
+        
         map_request = requests.get('https://maps.googleapis.com/maps/api/staticmap', params=payload)
         with Image.open(BytesIO(map_request.content)) as img:
             width = img.size[0]
