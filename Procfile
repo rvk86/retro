@@ -1,1 +1,1 @@
-web: sh -c 'cd backend && gunicorn backend.wsgi --log-file -'
+web: gunicorn django.backend.wsgi --log-file -
