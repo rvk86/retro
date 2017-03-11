@@ -35,7 +35,7 @@ def map(request):
                         '10',
                         '--output',
                         '-',
-                        temp.name], stdout=PIPE)
+                        temp.name], shell=True, stdout=PIPE)
 
         svg = traced.stdout.read()
         svg = map_row.randomize_path_colors(svg)

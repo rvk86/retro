@@ -30,11 +30,11 @@ def parse_style(json_str):
     
     
 def get_palette(id):
-    # xml = requests.get('http://www.colourlovers.com/api/palette/{}'.format(id))
-    # root = ET.fromstring(xml.content)
-    colors = ['#FFFF00', '#FF0000', '#00EE00']
-    # for color in root.find('palette/colors'):
-    #     colors.append('#{}'.format(color.text))
+    xml = requests.get('http://www.colourlovers.com/api/palette/{}'.format(id))
+    root = ET.fromstring(xml.content)
+    colors = []
+    for color in root.find('palette/colors'):
+        colors.append('#{}'.format(color.text))
         
     return colors
     
