@@ -35,7 +35,7 @@ def map(request):
                         '10',
                         '--output',
                         '-',
-                        temp.name], shell=True, stdout=PIPE)
+                        temp.name], stdout=PIPE)
 
         svg = traced.stdout.read()
         svg = map_row.randomize_path_colors(svg)
@@ -43,4 +43,4 @@ def map(request):
         
         result = map_row.get_png(100)
         
-        return HttpResponse(base64.b64encode(result), content_type="image/png")
+        return HttpResponse(result, content_type="image/png")
