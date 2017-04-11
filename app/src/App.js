@@ -11,13 +11,16 @@ import FormGroup from 'react-bootstrap/lib/FormGroup';
 
 import Map from './components/map/Map';
 import LoginButton from './components/loginButton/LoginButton';
+import ColorSelector from './components/colorSelector/ColorSelector';
 import './App.css';
 
 class App extends Component {
   state = {
     mapInfo: {},
     mapArtUrl: null,
-    user: null
+    user: null,
+    paletteId: null,
+    backgroundIndex: null
   }
   
   getMapInfo = (mapInfo) => {
@@ -29,8 +32,8 @@ class App extends Component {
     let params = qs.stringify({
       center: `${this.state.mapInfo.center.lat},${this.state.mapInfo.center.lng}`,
       zoom: this.state.mapInfo.zoom,
-      palette_id: '694737',
-      background_index: 0
+      palette_id: this.state.paletteId,
+      background_index: this.state.backgroundIndex
     });
     
     fetch(`http://127.0.0.1:8000/map/?${params}`)
@@ -53,7 +56,15 @@ class App extends Component {
     }
   }
   
-  render() {
+  selectPalette = (paletteId) => {
+    this.setState({paletteId: paletteId});
+  }
+  
+  selectBackground = (backgroundIndex) => {
+    this.setState({backgroundIndex: backgroundIndex});
+  }
+  
+  render() {    
     let mapOverlay;
     if(this.state.mapArtUrl) {
       mapOverlay = (
@@ -82,6 +93,7 @@ class App extends Component {
         </Modal.Body>
       </Modal>
         <Row>
+          <ColorSelector selectPalette={this.selectPalette} selectBackground={this.selectBackground}/>
           <Col xs={12}>
             <Map onChange={this.getMapInfo}>
               {mapOverlay}

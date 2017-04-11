@@ -1,9 +1,11 @@
 from subprocess import Popen, PIPE
 import tempfile
 import base64
+import requests
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import xml.etree.ElementTree as ET
 
 from models import Map
 from helpers import get_palette
@@ -48,10 +50,19 @@ def map(request):
 
 @api_view(['GET'])
 def palette_list(request):
-    xml = requests.get('http://www.colourlovers.com/api/palette/{}'.format(id))
+    xml = requests.get('http://www.colourlovers.com/api/palettes/top')
     root = ET.fromstring(xml.content)
-    colors = []
-    for color in root.find('palette/colors'):
-        colors.append('#{}'.format(color.text))
+    xml_palettes = root.findall('palette')
+
+    palettes = []
+    for palette in xml_palettes:
+        p = {
+            'title': palette.find('title').text,
+            'id': palette.find('id').text,
+            'colors': [],
+        }
+        for color in palette.find('colors'):
+            p['colors'].append('#{}'.format(color.text))
+        palettes.append(p)
         
-    return Response(serializer.data)
+    return Response(palettes)

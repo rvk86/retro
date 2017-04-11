@@ -6,4 +6,5 @@ from api import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^map/', views.map),
+    url(r'^palette_list/', views.palette_list),
 ]

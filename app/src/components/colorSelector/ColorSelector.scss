@@ -1,0 +1,81 @@
+$transitionTime: 0.5s;
+$selectedBarHeight: 40px;
+
+.ColorSelector {
+  width: 100%;
+  height: 150px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  
+  .colorBar {
+    position: relative;
+    cursor: pointer;
+    
+    .colorTitle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      line-height: 30px;
+      text-transform: capitalize;
+      text-align: center;
+      display: block;
+      transition: all $transitionTime;
+    }
+    
+    .colorPalette {
+      height: 30px;
+      width: 100%;
+      transition: all $transitionTime;
+      
+      .colorBlock {
+        position: relative;
+        opacity: 0.3;
+        display: inline-block;
+        height: 100%;
+        transition: all $transitionTime;
+        
+        .bgText {
+          position: absolute;
+          color: white;
+          text-shadow: 1px 1px 1px black;
+          line-height: $selectedBarHeight;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          opacity: 0;
+        }
+      }
+    }
+    
+    &:hover, &.selected {
+      .colorTitle {
+        display: none;
+        transition: all $transitionTime;
+      }
+      
+      .colorPalette {
+        height: $selectedBarHeight;
+        transition: all $transitionTime;
+        
+        .colorBlock {
+          opacity: 1;
+          transition: all $transitionTime;
+        }
+      }
+    }
+    
+    &.selected {
+      .colorBlock {
+        .bgText:hover {
+          background: rgba(0, 0, 0, 0.5);
+          opacity: 1;
+        }
+        
+        .bgText.selected {
+          opacity: 1;
+          background: none;
+        }
+      }
+    }
+  }
+}
