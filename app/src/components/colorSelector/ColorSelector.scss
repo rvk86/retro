@@ -1,35 +1,37 @@
 $transitionTime: 0.5s;
-$selectedBarHeight: 40px;
+$barHeight: 50px;
+$selectedBarHeight: 50px;
 
 .ColorSelector {
-  width: 100%;
-  height: 150px;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  
+  .navigation {
+    margin: 10px 0;
+    width: 100%;
+    text-align: center;
+  }
+  .scrollableWrapper {
+    border: 1px solid #ddd;
+    width: 100%;
+    overflow: hidden;
+    
+    .scrollable {
+      position: relative;
+      overflow: visible;
+      transition: all $transitionTime ease-out;
+    }
+  }
   
   .colorBar {
     position: relative;
-    cursor: pointer;
-    
-    .colorTitle {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      line-height: 30px;
-      text-transform: capitalize;
-      text-align: center;
-      display: block;
-      transition: all $transitionTime;
-    }
     
     .colorPalette {
-      height: 30px;
+      height: $barHeight;
       width: 100%;
       transition: all $transitionTime;
       
       .colorBlock {
         position: relative;
-        opacity: 0.3;
+        opacity: 0.2;
         display: inline-block;
         height: 100%;
         transition: all $transitionTime;
@@ -47,17 +49,13 @@ $selectedBarHeight: 40px;
       }
     }
     
-    &:hover, &.selected {
-      .colorTitle {
-        display: none;
-        transition: all $transitionTime;
-      }
-      
+    &.selected {      
       .colorPalette {
         height: $selectedBarHeight;
         transition: all $transitionTime;
         
         .colorBlock {
+          cursor: pointer;
           opacity: 1;
           transition: all $transitionTime;
         }

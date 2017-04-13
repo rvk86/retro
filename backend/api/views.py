@@ -50,7 +50,7 @@ def map(request):
 
 @api_view(['GET'])
 def palette_list(request):
-    xml = requests.get('http://www.colourlovers.com/api/palettes/top')
+    xml = requests.get('http://www.colourlovers.com/api/palettes/top/?numResults=5')
     root = ET.fromstring(xml.content)
     xml_palettes = root.findall('palette')
 

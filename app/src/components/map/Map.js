@@ -22,6 +22,8 @@ class Map extends Component {
       navigator.geolocation.getCurrentPosition((res) => {
         this.setState({center: {lat: res.coords.latitude, lng: res.coords.longitude}});
       });
+    } else {
+      this.setState({center: {lat: 52.3557194, lng: 4.8889233}});
     }
   }
 
@@ -32,7 +34,6 @@ class Map extends Component {
             bootstrapURLKeys={{
               key: Config.googleMapsApiKey
             }}
-            defaultCenter={this.state.defaultCenter}
             center={this.state.center}
             defaultZoom={this.state.defaultZoom}
             onChange={this.props.onChange}>            

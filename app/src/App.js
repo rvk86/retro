@@ -6,7 +6,6 @@ import Grid from 'react-bootstrap/lib/Grid';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import Modal from 'react-bootstrap/lib/Modal';
-import FormControl from 'react-bootstrap/lib/FormControl';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
 
 import Map from './components/map/Map';
@@ -57,14 +56,14 @@ class App extends Component {
   }
   
   selectPalette = (paletteId) => {
-    this.setState({paletteId: paletteId});
+    this.setState({paletteId: paletteId, backgroundIndex: null});
   }
   
   selectBackground = (backgroundIndex) => {
     this.setState({backgroundIndex: backgroundIndex});
   }
   
-  render() {    
+  render() {
     let mapOverlay;
     if(this.state.mapArtUrl) {
       mapOverlay = (
@@ -76,10 +75,6 @@ class App extends Component {
       mapOverlay = (
         <form className="form-inline">
         <FormGroup>
-          <FormControl componentClass="select" placeholder="select">
-            <option value="select">select</option>
-            <option value="other">...</option>
-          </FormControl>
           <Button bsStyle="primary" onClick={this.getMapArt}>I'm an artist, make this art</Button>
         </FormGroup>
       </form>
@@ -93,7 +88,11 @@ class App extends Component {
         </Modal.Body>
       </Modal>
         <Row>
-          <ColorSelector selectPalette={this.selectPalette} selectBackground={this.selectBackground}/>
+          <Col xs={12}>
+            <ColorSelector selectPalette={this.selectPalette} 
+                           selectBackground={this.selectBackground}
+                           barHeight="50"/>
+          </Col>
           <Col xs={12}>
             <Map onChange={this.getMapInfo}>
               {mapOverlay}
