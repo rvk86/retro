@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import qs from 'qs';
+import PageHeader from 'react-bootstrap/lib/PageHeader';
 import Button from 'react-bootstrap/lib/Button';
 import Grid from 'react-bootstrap/lib/Grid';
 import Row from 'react-bootstrap/lib/Row';
@@ -35,7 +36,7 @@ class App extends Component {
       background_index: this.state.backgroundIndex
     });
     
-    fetch(`http://127.0.0.1:8000/map/?${params}`)
+    fetch(`/map/?${params}`)
       .then((res) => {
         return res.blob();
       })
@@ -64,39 +65,38 @@ class App extends Component {
   }
   
   render() {
-    let mapOverlay;
+    let mapOverlay, button;
     if(this.state.mapArtUrl) {
-      mapOverlay = (
-        <div className="mapArtWrapper" style={{'backgroundImage': `url(${this.state.mapArtUrl})`}}>
-          <Button bsStyle="primary" bsSize="large" onClick={this.resetMapArt}>Ugly! Try again please</Button>
-        </div>
-      );
+      mapOverlay = <div className="mapArt" style={{'backgroundImage': `url(${this.state.mapArtUrl})`}}></div>;
+      button = <Button onClick={this.resetMapArt}>Reset</Button>;
     } else {
-      mapOverlay = (
-        <form className="form-inline">
-        <FormGroup>
-          <Button bsStyle="primary" onClick={this.getMapArt}>I'm an artist, make this art</Button>
-        </FormGroup>
-      </form>
-      );
+      button = <Button bsStyle="primary" onClick={this.getMapArt}>Ready!</Button>;
     }
     return (
       <Grid fluid={true}>
-      <Modal show={!this.state.user}>
-        <Modal.Body>
+      {/*<Modal show={!this.state.user}>
+         <Modal.Body>
           <LoginButton callback={this.facebookResponse}/>
         </Modal.Body>
-      </Modal>
+      </Modal>*/}
         <Row>
           <Col xs={12}>
-            <ColorSelector selectPalette={this.selectPalette} 
-                           selectBackground={this.selectBackground}
-                           barHeight="50"/>
+            <PageHeader>One of a kind <small>You are an artist</small></PageHeader>
           </Col>
-          <Col xs={12}>
+          <Col xs={8}>
             <Map onChange={this.getMapInfo}>
               {mapOverlay}
             </Map>
+          </Col>
+          <Col xs={4}>
+            <ColorSelector selectPalette={this.selectPalette} 
+                           selectBackground={this.selectBackground}
+                           barHeight="50"/>
+            <form className="form-inline">
+              <FormGroup>
+                {button}
+              </FormGroup>
+            </form>
           </Col>
         </Row>
       </Grid>

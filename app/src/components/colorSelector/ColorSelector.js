@@ -13,7 +13,7 @@ class ColorSelector extends Component {
   
   constructor(props) {
     super(props);
-    fetch(`http://127.0.0.1:8000/palette_list`)
+    fetch(`/palette_list`)
       .then((res) => {
         return res.json();
       })
@@ -42,6 +42,28 @@ class ColorSelector extends Component {
     }
   }
   
+  _touchStart = (e) => {
+    e.preventDefault();
+    this.touchStartY = e.touches[0].clientY;
+  }
+  
+  _touchEnd = (e) => {
+    let diff = e.changedTouches[0].clientY - this.touchStartY;
+    let offset = 0;
+    if(diff > 20) {
+      offset = -1;
+    } else if(diff < -20) {
+      offset = 1;
+    }
+    this.touchStartY = null;
+    this.scroll(offset);
+  }
+  
+  _wheel = (e) => {
+    let offset = e.deltaY < 0 ? -1 : 1;
+    this.scroll(offset);
+  }
+  
   selectPalette = (paletteIndex) => {
     //Don't run if palette already selected
     if(paletteIndex === this.state.selectedPaletteIndex) return;
@@ -60,12 +82,12 @@ class ColorSelector extends Component {
   
   scroll = (offset) => {
     // Dont scroll further than top
-    if(this.state.selectedPaletteIndex === 0 && offset < 0) return;
+    if(this.state.selectedPaletteIndex === 0 && offset <= 0) return;
     
     let newIndex = this.state.selectedPaletteIndex + offset;
 
     // Dont scroll lower than bottom
-    if(newIndex >= this.state.palettes.length  && offset > 0) return;
+    if(newIndex >= this.state.palettes.length  && offset >= 0) return;
 
     this.selectPalette(newIndex);
   }
@@ -93,9 +115,8 @@ class ColorSelector extends Component {
         </div>
       );
     });
-    
     let scrollableStyle = {
-      height: this.props.barHeight * 2, 
+      height: parseInt(this.props.barHeight) * 2, 
       top: -((this.props.barHeight * this.state.selectedPaletteIndex) - (this.props.barHeight / 2))
     };
     
@@ -109,7 +130,11 @@ class ColorSelector extends Component {
           </Button>
         </div>
         <div className="scrollableWrapper">
-          <div className="scrollable" style={scrollableStyle}>
+          <div className="scrollable" 
+               style={scrollableStyle} 
+               onWheel={this.wheel}
+               onTouchStart={this._touchStart}
+               onTouchEnd={this._touchEnd}>
             {colorBars}
           </div>
         </div>

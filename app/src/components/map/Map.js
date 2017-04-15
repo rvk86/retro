@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react';
+import ReactDOM from 'react-dom';
 import GoogleMapReact from 'google-map-react';
 
 import Config from '../../config';
@@ -16,8 +17,7 @@ class Map extends Component {
     onChange: PropTypes.func
   }
   
-  constructor(props) {
-    super(props);
+  componentWillMount() {
     if(navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((res) => {
         this.setState({center: {lat: res.coords.latitude, lng: res.coords.longitude}});
@@ -26,8 +26,21 @@ class Map extends Component {
       this.setState({center: {lat: 52.3557194, lng: 4.8889233}});
     }
   }
+  
+  componentDidMount() {
+    let el = ReactDOM.findDOMNode(this);
+    el.style.height = `${el.clientWidth}px`;
+  }
 
   render() {
+    let overlay;
+    if(this.props.children) {
+      overlay = (
+        <div className="MapOverlay">
+          {this.props.children}
+        </div>
+      );
+    }
     return (
       <div className="Map">
         <GoogleMapReact
@@ -38,9 +51,7 @@ class Map extends Component {
             defaultZoom={this.state.defaultZoom}
             onChange={this.props.onChange}>            
         </GoogleMapReact>
-        <div className="MapOverlay">
-          {this.props.children}
-        </div>
+        {overlay}
       </div>
     );
   }
