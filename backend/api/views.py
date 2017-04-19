@@ -21,7 +21,8 @@ def map(request):
         'zoom': params['zoom'],
         'center': params['center'],
         'colors': colors,
-        'background_color': background_color
+        'background_color': background_color,
+        'title': params['title'],
     })
 
     bmp = map_row.get_cropped_google_map()
