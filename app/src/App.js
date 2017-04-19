@@ -19,8 +19,20 @@ class App extends Component {
     mapInfo: {},
     mapArtUrl: null,
     user: null,
-    paletteId: null,
+    palettes: [],
+    paletteIndex: 0,
     backgroundIndex: null
+  }
+  
+  componentWillMount() {
+    // Get palettes from server
+    fetch(`/palette_list`)
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        this.setState({palettes: json});
+      });
   }
   
   getMapInfo = (mapInfo) => {
@@ -28,11 +40,10 @@ class App extends Component {
   }
   
   getMapArt = () => {
-    this.setState({working: 'pulsate'});
     let params = qs.stringify({
       center: `${this.state.mapInfo.center.lat},${this.state.mapInfo.center.lng}`,
       zoom: this.state.mapInfo.zoom,
-      palette_id: this.state.paletteId,
+      palette_id: this.state.palettes[this.state.paletteIndex].id,
       background_index: this.state.backgroundIndex
     });
     
@@ -56,11 +67,19 @@ class App extends Component {
     }
   }
   
-  selectPalette = (paletteId) => {
-    this.setState({paletteId: paletteId, backgroundIndex: null});
+  selectPalette = (offset) => {
+    if(this.state.paletteIndex === 0 && offset < 0) return;
+    if(this.state.paletteIndex === (this.state.palettes.length - 1) && offset > 0) return;
+    
+    this.setState({
+      paletteIndex: this.state.paletteIndex + offset, 
+      backgroundIndex: null
+    });
   }
   
-  selectBackground = (backgroundIndex) => {
+  selectBackground = (paletteIndex, backgroundIndex) => {
+    if(paletteIndex !== this.state.paletteIndex) return;
+    
     this.setState({backgroundIndex: backgroundIndex});
   }
   
@@ -89,9 +108,12 @@ class App extends Component {
             </Map>
           </Col>
           <Col xs={4}>
-            <ColorSelector selectPalette={this.selectPalette} 
+            <ColorSelector palettes={this.state.palettes}
+                           paletteIndex={this.state.paletteIndex}
+                           selectPalette={this.selectPalette} 
+                           backgroundIndex={this.state.backgroundIndex}
                            selectBackground={this.selectBackground}
-                           barHeight="50"/>
+                           barHeight={50}/>
             <form className="form-inline">
               <FormGroup>
                 {button}

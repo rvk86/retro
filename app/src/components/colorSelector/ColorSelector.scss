@@ -67,10 +67,11 @@ $selectedBarHeight: 50px;
         .bgText:hover {
           opacity: 1;
         }
-        
-        .bgText.selected {
-          opacity: 1;
-          color: green;
+        &.selected {
+          .bgText {
+            opacity: 1;
+            color: green;
+          }
         }
       }
     }

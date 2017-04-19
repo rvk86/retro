@@ -1,25 +1,21 @@
-import React, { Component } from 'react';
+import React, { PropTypes, Component } from 'react';
 import Button from 'react-bootstrap/lib/Button';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 import './ColorSelector.css';
 
 class ColorSelector extends Component {
-  state = {
-    palettes: [],
-    selectedPaletteIndex: 0,
-    selectedBackgroundIndex: null
-  }
-  
-  constructor(props) {
-    super(props);
-    fetch(`/palette_list`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        this.setState({palettes: json});
-      });
+  static propTypes = {
+    palettes: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      colors: PropTypes.array
+    })),
+    barHeight: PropTypes.number,
+    paletteIndex: PropTypes.number,
+    selectPalette: PropTypes.func,
+    backgroundIndex: PropTypes.number,
+    selectBackground: PropTypes.func,
   }
   
   componentWillMount() {
@@ -34,11 +30,11 @@ class ColorSelector extends Component {
   _keyDown = (e) => {
     if(e.key === 'ArrowUp') {
       e.preventDefault();
-      this.scroll(-1);
+      this.props.selectPalette(-1);
     } 
     if(e.key === 'ArrowDown') {
       e.preventDefault();
-      this.scroll(1);
+      this.props.selectPalette(1);
     }
   }
   
@@ -56,56 +52,31 @@ class ColorSelector extends Component {
       offset = 1;
     }
     this.touchStartY = null;
-    this.scroll(offset);
+    this.props.selectPalette(offset);
   }
   
   _wheel = (e) => {
     let offset = e.deltaY < 0 ? -1 : 1;
     this.scroll(offset);
   }
-  
-  selectPalette = (paletteIndex) => {
-    //Don't run if palette already selected
-    if(paletteIndex === this.state.selectedPaletteIndex) return;
-    
-    this.setState({selectedPaletteIndex: paletteIndex, selectedBackgroundIndex: null});
-    this.props.selectPalette(this.state.palettes[paletteIndex].id);
-  }
-  
-  selectBackground = (paletteIndex, backgroundIndex) => {
-    // Only select background for selected palette
-    if(paletteIndex !== this.state.selectedPaletteIndex) return;
-    
-    this.setState({selectedBackgroundIndex: backgroundIndex});
-    this.props.selectBackground(backgroundIndex);
-  }
-  
-  scroll = (offset) => {
-    // Dont scroll further than top
-    if(this.state.selectedPaletteIndex === 0 && offset <= 0) return;
-    
-    let newIndex = this.state.selectedPaletteIndex + offset;
 
-    // Dont scroll lower than bottom
-    if(newIndex >= this.state.palettes.length  && offset >= 0) return;
-
-    this.selectPalette(newIndex);
-  }
-  
   render() {
-    let colorBars = this.state.palettes.map((palette, paletteIndex) => {
+    let colorBars = this.props.palettes.map((palette, paletteIndex) => {
       return (
         <div key={palette.id}  
-             className={this.state.selectedPaletteIndex === paletteIndex ? 'selected colorBar' : 'colorBar'}>
+             className={this.props.paletteIndex === paletteIndex ? 'selected colorBar' : 'colorBar'}>
           <div className="colorPalette">
             {palette.colors.map((color, backgroundIndex) => {
               let style = {background: color, width: `${100 / palette.colors.length}%`};
+              let selected = this.props.backgroundIndex === backgroundIndex && this.props.paletteIndex === paletteIndex ?
+                             'selected' :
+                             '';
               return (
                 <div key={backgroundIndex} 
-                     className="colorBlock" 
+                     className={`colorBlock ${selected}`}
                      style={style}
-                     onClick={() => this.selectBackground(paletteIndex, backgroundIndex)}>
-                  <div className={this.state.selectedBackgroundIndex === backgroundIndex ? 'bgText selected' : 'bgText'}>
+                     onClick={() => this.props.selectBackground(paletteIndex, backgroundIndex)}>
+                  <div className="bgText">
                     <Glyphicon glyph="ok"/>
                   </div>
                 </div>
@@ -116,16 +87,16 @@ class ColorSelector extends Component {
       );
     });
     let scrollableStyle = {
-      height: parseInt(this.props.barHeight) * 2, 
-      top: -((this.props.barHeight * this.state.selectedPaletteIndex) - (this.props.barHeight / 2))
+      height: this.props.barHeight * 2, 
+      top: -((this.props.barHeight * this.props.paletteIndex) - (this.props.barHeight / 2))
     };
     
     return (
       <div className="ColorSelector">
         <div className="navigation">
           <Button bsStyle="primary" 
-                  onClick={() => this.scroll(-1)} 
-                  className={this.state.selectedPaletteIndex <= 0 ? 'disabled' : ''}>
+                  onClick={() => this.props.selectPalette(-1)} 
+                  className={this.props.paletteIndex <= 0 ? 'moveUp disabled' : 'moveUp'}>
             <Glyphicon glyph="chevron-up"/>
           </Button>
         </div>
@@ -140,8 +111,8 @@ class ColorSelector extends Component {
         </div>
         <div className="navigation">
           <Button bsStyle="primary" 
-                  onClick={() => this.scroll(1)}
-                  className={this.state.selectedPaletteIndex >= (this.state.palettes.length - 1) ? 'disabled' : ''}>
+                  onClick={() => this.props.selectPalette(1)}
+                  className={this.props.paletteIndex >= (this.props.palettes.length - 1) ? 'moveDown disabled' : 'moveDown'}>
             <Glyphicon glyph="chevron-down"/>
           </Button>
         </div>

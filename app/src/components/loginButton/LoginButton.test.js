@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import LoginButton from './LoginButton';
 
 it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<Map />, div);
+  // const div = document.createElement('div');
+  // ReactDOM.render(<LoginButton callback={(res) => { console.log(res)}} />, div);
 });
