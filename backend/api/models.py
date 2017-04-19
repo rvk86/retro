@@ -80,3 +80,8 @@ class Map(models.Model):
             img.save(buffer_img, format='png')
             buffer_img.seek(0)
             return buffer_img.read()
+            
+
+class Palette(models.Model):
+    title = models.CharField(max_length=50)
+    colors = ArrayField(models.CharField(max_length=7))

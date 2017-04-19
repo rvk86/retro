@@ -7,14 +7,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import xml.etree.ElementTree as ET
 
-from models import Map
-from helpers import get_palette
+from models import Map, Palette
+from serializers import PaletteSerializer
 
 
 @api_view(['GET'])
 def map(request):
     params = request.query_params
-    colors = get_palette(params['palette_id'])
+    colors = Palette.objects.get(pk=params['palette_id']).colors
     background_color = colors.pop(int(params['background_index']))
 
     map_row = Map.objects.create(**{
@@ -28,8 +28,9 @@ def map(request):
     temp = tempfile.NamedTemporaryFile()
     bmp.save(temp, 'bmp')
 
-    # TRACE BMP FILE. Apparently using pypotrace doesn't work because of memory issues
-    traced = Popen(['potrace', 
+    # TRACE BMP FILE. Apparently using pypotrace doesn't work because of
+    # memory issues
+    traced = Popen(['potrace',
                     '--svg',
                     '--turdsize',
                     '50',
@@ -50,19 +51,6 @@ def map(request):
 
 @api_view(['GET'])
 def palette_list(request):
-    xml = requests.get('http://www.colourlovers.com/api/palettes/top/?numResults=5')
-    root = ET.fromstring(xml.content)
-    xml_palettes = root.findall('palette')
-
-    palettes = []
-    for palette in xml_palettes:
-        p = {
-            'title': palette.find('title').text,
-            'id': palette.find('id').text,
-            'colors': [],
-        }
-        for color in palette.find('colors'):
-            p['colors'].append('#{}'.format(color.text))
-        palettes.append(p)
-        
-    return Response(palettes)
+    palettes = Palette.objects.all()
+    serializer = PaletteSerializer(palettes, many=True)
+    return Response(serializer.data)
