@@ -3,43 +3,41 @@ import React, {
   Component
 } from 'react';
 import ReactDOM from 'react-dom';
-import GoogleMapReact from 'google-map-react';
-import Geosuggest from 'react-geosuggest';
+
+import {
+  withGoogleMap,
+  GoogleMap,
+} from "react-google-maps";
 
 import Config from '../../config';
 import './Map.css';
+import MapStyles from './MapStyles.json';
+
+const MapElement = withGoogleMap(props => (
+  <GoogleMap ref={props.onMapMounted}
+             defaultZoom={13}
+             defaultCenter={props.defaultCenter}
+             defaultOptions={{ styles: MapStyles }}
+             onBoundsChanged={props.boundsChanged}>
+  </GoogleMap>
+));
 
 class Map extends Component {
-  state = {
-    defaultCenter: {
-      lat: 59.95,
-      lng: 30.33
-    },
-    defaultZoom: 11,
-    center: null,
-    language: 'nl'
-  }
-
   static propTypes = {
-    onChange: PropTypes.func
+    onBoundsChanged: PropTypes.func
   }
 
   componentWillMount() {
+    this.defaultCenter = {
+      lat: 52.3557194,
+      lng: 4.8889233
+    };
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((res) => {
-        this.setState({
-          center: {
-            lat: res.coords.latitude,
-            lng: res.coords.longitude
-          }
-        });
-      });
-    } else {
-      this.setState({
-        center: {
-          lat: 52.3557194,
-          lng: 4.8889233
-        }
+        this.defaultCenter = {
+          lat: res.coords.latitude,
+          lng: res.coords.longitude
+        };
       });
     }
   }
@@ -49,38 +47,15 @@ class Map extends Component {
     el.style.height = `${el.clientWidth}px`;
   }
 
-  setCenter = (suggest) => {
-    this.setState({
-      center: suggest.location
-    });
-    console.log(suggest)
-  }
-
   render() {
-    let overlay;
-    if (this.props.children) {
-      overlay = (
-        <div className="MapOverlay">
-          {this.props.children}
-        </div>
-      );
-    }
     return (
       <div className="Map">
-        <Geosuggest className="form-group" 
-                    inputClassName="form-control"
-                    suggestsClassName="btn-group-vertical"
-                    suggestItemClassName="btn btn-default"
-                    onSuggestSelect={this.setCenter}/>
-        <GoogleMapReact
-            bootstrapURLKeys={{
-              key: Config.googleMapsApiKey
-            }}
-            center={this.state.center}
-            defaultZoom={this.state.defaultZoom}
-            onChange={this.props.onChange}>            
-        </GoogleMapReact>
-        {overlay}
+        <MapElement containerElement={<div style={{ height: `100%` }} />}
+                    mapElement={<div style={{ height: `100%` }} />}
+                    defaultCenter={this.defaultCenter}
+                    onMapMounted={(map) => { this._map = map; }}
+                    onSearchBoxMounted={(searchBox) => { this._searchBox = searchBox; }}
+                    boundsChanged={() => { this.props.onBoundsChanged(this._map); }} />
       </div>
     );
   }
