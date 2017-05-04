@@ -102,3 +102,8 @@ class Map(models.Model):
 class Palette(models.Model):
     title = models.CharField(max_length=50)
     colors = ArrayField(models.CharField(max_length=7))
+
+class PrintSize(models.Model):
+    title = models.CharField(max_length=50)
+    width = models.DecimalField(max_digits=5, decimal_places=2)
+    height = models.DecimalField(max_digits=5, decimal_places=2)

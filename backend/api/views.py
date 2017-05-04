@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import xml.etree.ElementTree as ET
 
-from models import Map, Palette
-from serializers import PaletteSerializer
+from models import Map, Palette, PrintSize
+from serializers import PaletteSerializer, PrintSizeSerializer
 
 
 @api_view(['GET'])
@@ -54,4 +54,10 @@ def map(request):
 def palette_list(request):
     palettes = Palette.objects.all()
     serializer = PaletteSerializer(palettes, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def print_size_list(request):
+    print_sizes = PrintSize.objects.all()
+    serializer = PrintSizeSerializer(print_sizes, many=True)
     return Response(serializer.data)

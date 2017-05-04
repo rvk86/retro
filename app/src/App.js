@@ -2,7 +2,6 @@ import React, {
   Component
 } from 'react';
 
-import qs from 'qs';
 import PageHeader from 'react-bootstrap/lib/PageHeader';
 import Button from 'react-bootstrap/lib/Button';
 import Grid from 'react-bootstrap/lib/Grid';
@@ -11,6 +10,11 @@ import Col from 'react-bootstrap/lib/Col';
 import Modal from 'react-bootstrap/lib/Modal';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
+
+import {
+  fetchJson,
+  fetchBlob
+} from './helpers/fetch/Fetch';
 
 import Map from './components/map/Map';
 import LoginButton from './components/loginButton/LoginButton';
@@ -26,18 +30,23 @@ class App extends Component {
     palettes: [],
     paletteIndex: 0,
     backgroundIndex: 0,
+    printSizes: [],
+    printSize: {},
     title: ''
   }
 
   componentDidMount() {
-    // Get palettes from server
-    fetch(`http://192.168.1.105:8000/palette_list`)
+    fetchJson(`palette_list`)
       .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
         this.setState({
-          palettes: json
+          palettes: res
+        });
+      });
+    fetchJson(`print_size_list`)
+      .then((res) => {
+        this.setState({
+          printSizes: res,
+          printSize: res[0]
         });
       });
   }
@@ -61,25 +70,28 @@ class App extends Component {
     });
   }
 
+  setPrintSize = (e) => {
+    this.setState({
+      printSize: this.state.printSizes[e.target.value]
+    });
+  }
+
   setMapArt = () => {
     this.setState({
       mapArtUrl: 'http://www.downgraf.com/wp-content/uploads/2014/09/01-progress.gif'
     });
 
-    let params = qs.stringify({
+    let query = {
       center: `${this.state.mapInfo.center.lat},${this.state.mapInfo.center.lng}`,
       zoom: this.state.mapInfo.zoom,
       palette_id: this.state.palettes[this.state.paletteIndex].id,
       background_index: this.state.backgroundIndex,
       title: this.state.title
-    });
+    };
 
-    fetch(`http://192.168.1.105:8000/map/?${params}`)
+    fetchBlob(`map`, query)
       .then((res) => {
-        return res.blob();
-      })
-      .then((blob) => {
-        var mapArtUrl = URL.createObjectURL(blob);
+        var mapArtUrl = URL.createObjectURL(res);
         this.setState({
           mapArtUrl: mapArtUrl,
           working: null
@@ -140,7 +152,9 @@ class App extends Component {
               <PageHeader>Maps you love</PageHeader>
             </Col>
             <Col xs={4}>
-              <Map onBoundsChanged={this.setMapInfo}/>
+              <Map onBoundsChanged={this.setMapInfo}
+                   printSize={this.state.printSize}
+                   title={this.state.title}/>
             </Col>
             <Col xs={8}>
               <ColorSelector palettes={this.state.palettes}
@@ -152,10 +166,21 @@ class App extends Component {
 
               <form>
                 <FormGroup>
-                <FormControl type="text"
-                             placeholder="Set a title"
-                             value={this.state.title}
-                             onChange={this.setTitle}></FormControl>
+                  <FormControl type="text"
+                               placeholder="Set a title"
+                               value={this.state.title}
+                               onChange={this.setTitle} />
+                </FormGroup>
+                <FormGroup>
+                  <FormControl componentClass="select"
+                               onChange={this.setPrintSize}
+                               placeholder="Select print size">
+                    {this.state.printSizes.map((size, index) => {
+                      return (
+                        <option value={index} key={size.id}>{size.title}</option>
+                      )
+                    })}
+                  </FormControl>
                 </FormGroup>
                 <FormGroup>
                   {button}

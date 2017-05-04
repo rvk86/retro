@@ -24,10 +24,13 @@ const MapElement = withGoogleMap(props => (
 
 class Map extends Component {
   static propTypes = {
-    onBoundsChanged: PropTypes.func
+    onBoundsChanged: PropTypes.func,
+    printSize: PropTypes.object
   }
 
-  componentWillMount() {
+  constructor() {
+    super();
+
     this.defaultCenter = {
       lat: 52.3557194,
       lng: 4.8889233
@@ -42,20 +45,36 @@ class Map extends Component {
     }
   }
 
-  componentDidMount() {
+  componentWillUpdate(nextProps) {
     let el = ReactDOM.findDOMNode(this);
-    el.style.height = `${el.clientWidth}px`;
+    let elWidth = el.getBoundingClientRect().width;
+    let fontSize = 0.05 * elWidth;
+
+    let ratio = nextProps.printSize.width / nextProps.printSize.height;
+    let height = elWidth * ratio;
+
+    this.mapStyle = {
+      height: `${height}px`,
+      // padding: `${0.05 * elWidth}px`,
+      // fontSize: `${fontSize}px`
+    };
+  }
+
+  componentDidUpdate() {
+    //Weird hacky thing with react-google-maps: https://github.com/tomchentw/react-google-maps/issues/337
+    window.google.maps.event.trigger(this._map.context['__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'], 'resize');
   }
 
   render() {
     return (
-      <div className="Map">
+      <div className="Map" style={this.mapStyle}>
         <MapElement containerElement={<div style={{ height: `100%` }} />}
                     mapElement={<div style={{ height: `100%` }} />}
                     defaultCenter={this.defaultCenter}
                     onMapMounted={(map) => { this._map = map; }}
                     onSearchBoxMounted={(searchBox) => { this._searchBox = searchBox; }}
                     boundsChanged={() => { this.props.onBoundsChanged(this._map); }} />
+        <div className="title">{this.props.title}</div>
       </div>
     );
   }
