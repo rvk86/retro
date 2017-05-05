@@ -14,6 +14,7 @@ from serializers import PaletteSerializer, PrintSizeSerializer
 @api_view(['GET'])
 def map(request):
     params = request.query_params
+    print_size = PrintSize.objects.get(pk=params['print_size_id'])
     colors = Palette.objects.get(pk=params['palette_id']).colors
     background_color = colors.pop(int(params['background_index']))
 
@@ -23,6 +24,8 @@ def map(request):
         'colors': colors,
         'background_color': background_color,
         'title': params['title'],
+        'width': print_size.width,
+        'height': print_size.height,
     })
 
     bmp = map_row.get_cropped_google_map()
@@ -37,6 +40,11 @@ def map(request):
                     '50',
                     '--opttolerance',
                     '10',
+                    # TODO: width and height flipped. I'm too lazy to figure out why
+                    '--width',
+                    str(map_row.height),
+                    '--height',
+                    str(map_row.width),
                     '--output',
                     '-',
                     temp.name], stdout=PIPE)
@@ -45,7 +53,7 @@ def map(request):
     svg = map_row.randomize_path_colors(svg)
     map_row.save_svg(svg)
 
-    result = map_row.get_png(100)
+    result = map_row.get_png(50)
 
     return HttpResponse(result, content_type="image/png")
 

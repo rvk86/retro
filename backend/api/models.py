@@ -20,6 +20,8 @@ class Map(models.Model):
     colors = ArrayField(models.CharField(max_length=7))
     background_color = models.CharField(max_length=7)
     title = models.CharField(max_length=50, null=True, blank=True)
+    width = models.DecimalField(max_digits=5, decimal_places=2)
+    height = models.DecimalField(max_digits=5, decimal_places=2)
     svg = models.FileField(upload_to='maps/')
 
     def save_svg(self, svg):
@@ -27,9 +29,16 @@ class Map(models.Model):
         self.svg.save(file_name, ContentFile(svg))
 
     def get_cropped_google_map(self):
+        if self.width < self.height:
+            size = '{}x{}'.format(
+                640, int(round(640 * (self.width / self.height), 0)))
+        else:
+            size = '{}x{}'.format(
+                int(round(640 * (self.height / self.width), 0)), 640)
+
         payload = {
             'center': self.center,
-            'size': '640x640',
+            'size': size,
             'scale': 2,
             'zoom': self.zoom,
             'key': settings.GOOGLE_API_KEY,
@@ -64,22 +73,22 @@ class Map(models.Model):
 
     def _set_png_border(self, img, border_width):
         font = ImageFont.truetype(
-            '{}/fonts/Asar-Regular.ttf'.format(settings.STATICFILES_DIRS[0]), 200)
+            '{}/fonts/Asar-Regular.ttf'.format(settings.STATICFILES_DIRS[0]), border_width * 3)
         text_w, text_h = font.getsize(self.title)
 
         bg_color = hex_to_rgba(self.background_color)
         img_w, img_h = img.size
-        bg_w = img_w + border_width
-        bg_h = img_h + text_h + border_width + (border_width / 2)
+        cropped = img.crop((border_width, border_width,
+                            img_w - border_width, img_h - border_width - text_h))
         border_img = Image.new(
-            'RGBA', (bg_w, bg_h), bg_color)
-        offset = (border_width / 2, border_width / 2)
-        border_img.paste(img, offset)
+            'RGBA', img.size, bg_color)
+        offset = (border_width, border_width)
+        border_img.paste(cropped, offset)
 
         text_color = hex_to_rgba(get_opposite_color(
             self.background_color, self.colors))
-        text_x = (bg_w / 2) - (text_w / 2)
-        text_y = bg_h - text_h - border_width
+        text_x = (img_w / 2) - (text_w / 2)
+        text_y = img_h - text_h - (border_width * 1.5)
         draw = ImageDraw.Draw(border_img)
         draw.text((text_x, text_y), self.title,
                   font=font, fill=text_color)
@@ -98,12 +107,22 @@ class Map(models.Model):
             buffer_img.seek(0)
             return buffer_img.read()
 
+    def __unicode__(self):
+        return self.title
+
 
 class Palette(models.Model):
     title = models.CharField(max_length=50)
     colors = ArrayField(models.CharField(max_length=7))
 
+    def __unicode__(self):
+        return self.title
+
+
 class PrintSize(models.Model):
     title = models.CharField(max_length=50)
     width = models.DecimalField(max_digits=5, decimal_places=2)
     height = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __unicode__(self):
+        return self.title

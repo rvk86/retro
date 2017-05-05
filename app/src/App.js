@@ -86,7 +86,8 @@ class App extends Component {
       zoom: this.state.mapInfo.zoom,
       palette_id: this.state.palettes[this.state.paletteIndex].id,
       background_index: this.state.backgroundIndex,
-      title: this.state.title
+      title: this.state.title,
+      print_size_id: this.state.printSize.id
     };
 
     fetchBlob(`map`, query)
@@ -151,12 +152,12 @@ class App extends Component {
             <Col xs={12}>
               <PageHeader>Maps you love</PageHeader>
             </Col>
-            <Col xs={4}>
+            <Col xs={6}>
               <Map onBoundsChanged={this.setMapInfo}
                    printSize={this.state.printSize}
                    title={this.state.title}/>
             </Col>
-            <Col xs={8}>
+            <Col xs={6}>
               <ColorSelector palettes={this.state.palettes}
                              paletteIndex={this.state.paletteIndex}
                              selectPalette={this.selectPalette}
