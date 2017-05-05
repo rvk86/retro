@@ -59,7 +59,8 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # Look in frontend for react index.html
+        'DIRS': ['../frontend/build'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,7 +137,11 @@ STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
+    # Collect statics from React
+    os.path.join(PROJECT_ROOT, '../../frontend/build/static'),
 )
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 GOOGLE_API_KEY = 'AIzaSyAy2awhVyQuvbdg0-3AzPZdUJpRejF9yj8'
 

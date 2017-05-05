@@ -1,0 +1,4 @@
+potrace
+libcairo2-dev
+python-cffi
+libffi-dev
