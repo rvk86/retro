@@ -1,13 +1,11 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.contrib import admin
 
 from views import index
-from api import views
 
 urlpatterns = [
-    url(r'^$', index),
+    url(r'^api/', include('api.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^map/', views.map),
-    url(r'^palette_list/', views.palette_list),
-    url(r'^print_size_list/', views.print_size_list),
+    url(r'^$', index),
+    url(r'^.*/$', index),
 ]

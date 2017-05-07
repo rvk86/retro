@@ -1,0 +1,17 @@
+.routeTransition-enter {
+  opacity: 0.01;
+}
+
+.routeTransition-enter.routeTransition-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.routeTransition-leave {
+  opacity: 1;
+}
+
+.routeTransition-leave.example-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}

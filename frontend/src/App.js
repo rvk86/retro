@@ -142,7 +142,7 @@ class App extends Component {
     return (
       <div className="App">
         <MapArtModal mapArtUrl={this.state.mapArtUrl} reset={this.resetMapArt}/>
-        <Grid fluid={true}>
+        <Grid>
         {/*<Modal show={!this.state.user}>
            <Modal.Body>
             <LoginButton callback={this.facebookResponse}/>
