@@ -7,7 +7,6 @@ import Button from 'react-bootstrap/lib/Button';
 import Grid from 'react-bootstrap/lib/Grid';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
-import Modal from 'react-bootstrap/lib/Modal';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
 
@@ -17,9 +16,7 @@ import {
 } from './helpers/fetch/Fetch';
 
 import Map from './components/map/Map';
-import LoginButton from './components/loginButton/LoginButton';
 import ColorSelector from './components/colorSelector/ColorSelector';
-import MapArtModal from './components/mapArtModal/MapArtModal';
 import './App.css';
 
 class App extends Component {
@@ -32,7 +29,8 @@ class App extends Component {
     backgroundIndex: 0,
     printSizes: [],
     printSize: {},
-    title: ''
+    title: '',
+    isLoading: false
   }
 
   componentDidMount() {
@@ -78,7 +76,7 @@ class App extends Component {
 
   setMapArt = () => {
     this.setState({
-      mapArtUrl: 'http://www.downgraf.com/wp-content/uploads/2014/09/01-progress.gif'
+      isLoading: true
     });
 
     let query = {
@@ -93,9 +91,9 @@ class App extends Component {
     fetchBlob(`map`, query)
       .then((res) => {
         var mapArtUrl = URL.createObjectURL(res);
+        this.props.history.push('/map-art', {mapArtUrl: mapArtUrl})
         this.setState({
-          mapArtUrl: mapArtUrl,
-          working: null
+          isLoading: false
         });
       });
   }
@@ -133,15 +131,8 @@ class App extends Component {
   }
 
   render() {
-    let button;
-    if (this.state.mapArtUrl) {
-      button = <Button onClick={this.resetMapArt}>Reset</Button>;
-    } else {
-      button = <Button bsStyle="primary" onClick={this.setMapArt}>Ready!</Button>;
-    }
     return (
       <div className="App">
-        <MapArtModal mapArtUrl={this.state.mapArtUrl} reset={this.resetMapArt}/>
         <Grid>
         {/*<Modal show={!this.state.user}>
            <Modal.Body>
@@ -167,15 +158,19 @@ class App extends Component {
 
               <form>
                 <FormGroup>
-                  <FormControl type="text"
-                               placeholder="Set a title"
-                               value={this.state.title}
-                               onChange={this.setTitle} />
+                  <FormControl
+                    type="text"
+                    placeholder="Set a title"
+                    value={this.state.title}
+                    disabled={this.state.isLoading}
+                    onChange={this.setTitle} />
                 </FormGroup>
                 <FormGroup>
-                  <FormControl componentClass="select"
-                               onChange={this.setPrintSize}
-                               placeholder="Select print size">
+                  <FormControl
+                    componentClass="select"
+                    placeholder="Select print size"
+                    disabled={this.state.isLoading}
+                    onChange={this.setPrintSize}>
                     {this.state.printSizes.map((size, index) => {
                       return (
                         <option value={index} key={size.id}>{size.title}</option>
@@ -184,7 +179,12 @@ class App extends Component {
                   </FormControl>
                 </FormGroup>
                 <FormGroup>
-                  {button}
+                  <Button
+                    bsStyle="primary"
+                    disabled={this.state.isLoading}
+                    onClick={this.setMapArt}>
+                    {this.state.isLoading ? 'Working...' : 'Ready!'}
+                  </Button>
                 </FormGroup>
               </form>
             </Col>

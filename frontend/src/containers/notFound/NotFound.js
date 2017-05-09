@@ -2,13 +2,10 @@ import React, {
   PropTypes,
   Component
 } from 'react';
-import ReactDOM from 'react-dom';
 import Grid from 'react-bootstrap/lib/Grid';
-import Row from 'react-bootstrap/lib/Row';
-import Col from 'react-bootstrap/lib/Col';
 import Jumbotron from 'react-bootstrap/lib/Jumbotron';
 import Button from 'react-bootstrap/lib/Button';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 import './NotFound.css';
 

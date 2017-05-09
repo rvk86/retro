@@ -17,7 +17,7 @@ const fetchJson = (endpoint, params = {}) => {
 
 const fetchBlob = (endpoint, params = {}) => {
   let query = qs.stringify(params);
-  return fetch(`${endpoint}/?${query}`)
+  return fetch(`api/${endpoint}/?${query}`)
     .then((res) => {
       return res.blob();
     })

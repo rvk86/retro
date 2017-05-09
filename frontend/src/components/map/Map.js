@@ -9,7 +9,6 @@ import {
   GoogleMap,
 } from "react-google-maps";
 
-import Config from '../../config';
 import './Map.css';
 import MapStyles from './MapStyles.json';
 
@@ -48,7 +47,7 @@ class Map extends Component {
   componentWillUpdate(nextProps) {
     let el = ReactDOM.findDOMNode(this);
     let elWidth = el.getBoundingClientRect().width;
-    let fontSize = 0.05 * elWidth;
+    // let fontSize = 0.05 * elWidth;
 
     let ratio = nextProps.printSize.width / nextProps.printSize.height;
     let height = elWidth * ratio;
