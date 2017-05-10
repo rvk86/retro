@@ -19,17 +19,12 @@ import BgImage2 from '../../media/room_2.jpg';
 class MapArt extends Component {
   render() {
     if (!this.props.location.state) return <Redirect to="/" />;
-
-    const roomStyle = {
-      backgroundImage: `url(${BgImage})`
-    }
-
     return (
       <div className="MapArt">
-        <Link to="/"><Button onClick={this.goBack}>Go back</Button></Link>
-        <div className="room" style={roomStyle}>
-          <img className="art" src={BgImage2} alt="art" />
-        </div>
+        {/*<Link to="/"><Button>Go back</Button></Link>*/}
+        <div className="image" style={{
+          backgroundImage: `url(${this.props.location.state.mapArtUrl})`
+        }}></div>
       </div>
     );
   }
