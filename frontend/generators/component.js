@@ -20,7 +20,7 @@ function copyComponent() {
 
         let result = data.replace(/\*\*NAME\*\*/g, capitalName);
         let fileName = file.replace(/Component/, capitalName);
-        fs.writeFile(`${target}/${fileName}.js`, result, 'utf8');
+        fs.writeFile(`${target}/${fileName}`, result, 'utf8');
       });
     });
 
@@ -29,15 +29,12 @@ function copyComponent() {
 
 if (require.main === module) {
   if(process.argv.length < 4) {
-    console.log(
-      `
+    return console.log(`
 To generate a new component run this script as follows:
 node component.js [DESTINATION DIRECTORY] [COMPONENT NAME]
 where DESTINATION DIRECTORY is a folder inside the src directory (mostly components or containers)
 and COMPONENT NAME is the name of the component camelcased.
-      `
-    )
-    return;
+    `);
   }
 
   copyComponent();
