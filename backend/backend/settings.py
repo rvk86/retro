@@ -143,7 +143,7 @@ STATICFILES_DIRS = (
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
-GOOGLE_API_KEY = 'AIzaSyAy2awhVyQuvbdg0-3AzPZdUJpRejF9yj8'
+GOOGLE_API_KEY = 'AIzaSyBjECHlDoNzrDJm-_PLKbl2vltu_8H9-_I'
 
 MAP_STYLE = '''
     [

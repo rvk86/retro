@@ -7,7 +7,7 @@ from PIL import Image, ImageFont, ImageDraw
 from django.conf import settings
 from django.db import models
 from django.core.files.base import ContentFile
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 import requests
 import cairosvg
 
@@ -20,6 +20,7 @@ class Map(models.Model):
     colors = ArrayField(models.CharField(max_length=7))
     background_color = models.CharField(max_length=7)
     title = models.CharField(max_length=50, null=True, blank=True)
+    font = models.ForeignKey('Font', on_delete=models.PROTECT)
     width = models.DecimalField(max_digits=5, decimal_places=2)
     height = models.DecimalField(max_digits=5, decimal_places=2)
     svg = models.FileField(upload_to='maps/')
@@ -72,14 +73,16 @@ class Map(models.Model):
         return bg_img
 
     def _set_png_border(self, img, border_width):
+        # We should store the ttf files so we don't need to get it from Google every time
+        font_file = BytesIO(requests.get(self.font.get_url()).content)
         font = ImageFont.truetype(
-            '{}/fonts/Asar-Regular.ttf'.format(settings.STATICFILES_DIRS[0]), border_width * 3)
+            font_file, border_width * 3)
         text_w, text_h = font.getsize(self.title)
 
         bg_color = hex_to_rgba(self.background_color)
         img_w, img_h = img.size
         cropped = img.crop((border_width, border_width,
-                            img_w - border_width, img_h - border_width - text_h))
+                            img_w - border_width, img_h - (border_width * 2) - text_h))
         border_img = Image.new(
             'RGBA', img.size, bg_color)
         offset = (border_width, border_width)
@@ -88,7 +91,7 @@ class Map(models.Model):
         text_color = hex_to_rgba(get_opposite_color(
             self.background_color, self.colors))
         text_x = (img_w / 2) - (text_w / 2)
-        text_y = img_h - text_h - (border_width * 1.5)
+        text_y = img_h - text_h - border_width
         draw = ImageDraw.Draw(border_img)
         draw.text((text_x, text_y), self.title,
                   font=font, fill=text_color)
@@ -108,7 +111,7 @@ class Map(models.Model):
             return buffer_img.read()
 
     def __unicode__(self):
-        return self.title
+        return self.title or str(self.pk)
 
 
 class Palette(models.Model):
@@ -126,3 +129,14 @@ class PrintSize(models.Model):
 
     def __unicode__(self):
         return self.title
+
+class Font(models.Model):
+    family = models.CharField(max_length=50)
+    active = models.BooleanField(default=False)
+    files = JSONField()
+
+    def get_url(self):
+        return self.files.get('regular') or self.files.itervalues().next()
+
+    def __unicode__(self):
+        return self.family

@@ -29,6 +29,8 @@ class App extends Component {
     backgroundIndex: 0,
     printSizes: [],
     printSize: {},
+    fonts: [],
+    font: {},
     title: '',
     isLoading: false
   }
@@ -45,6 +47,13 @@ class App extends Component {
         this.setState({
           printSizes: res,
           printSize: res[0]
+        });
+      });
+    fetchJson(`font_list`)
+      .then((res) => {
+        this.setState({
+          fonts: res,
+          font: res[0]
         });
       });
   }
@@ -74,6 +83,12 @@ class App extends Component {
     });
   }
 
+  setFont = (e) => {
+    this.setState({
+      font: this.state.fonts[e.target.value]
+    });
+  }
+
   setMapArt = () => {
     this.setState({
       isLoading: true
@@ -85,13 +100,16 @@ class App extends Component {
       palette_id: this.state.palettes[this.state.paletteIndex].id,
       background_index: this.state.backgroundIndex,
       title: this.state.title,
-      print_size_id: this.state.printSize.id
+      print_size_id: this.state.printSize.id,
+      font_id: this.state.font.id
     };
 
     fetchBlob(`map`, query)
       .then((res) => {
         var mapArtUrl = URL.createObjectURL(res);
-        this.props.history.push('/map-art', {mapArtUrl: mapArtUrl})
+        this.props.history.push('/map-art', {
+          mapArtUrl: mapArtUrl
+        });
         this.setState({
           isLoading: false
         });
@@ -122,7 +140,6 @@ class App extends Component {
   }
 
   selectBackground = (paletteIndex, backgroundIndex) => {
-    console.log(backgroundIndex)
     if (paletteIndex !== this.state.paletteIndex) return;
 
     this.setState({
@@ -146,7 +163,8 @@ class App extends Component {
             <Col xs={6}>
               <Map onBoundsChanged={this.setMapInfo}
                    printSize={this.state.printSize}
-                   title={this.state.title}/>
+                   title={this.state.title}
+                   font={this.state.font}/>
             </Col>
             <Col xs={6}>
               <ColorSelector palettes={this.state.palettes}
@@ -174,6 +192,19 @@ class App extends Component {
                     {this.state.printSizes.map((size, index) => {
                       return (
                         <option value={index} key={size.id}>{size.title}</option>
+                      )
+                    })}
+                  </FormControl>
+                </FormGroup>
+                <FormGroup>
+                  <FormControl
+                    componentClass="select"
+                    placeholder="Select font type"
+                    disabled={this.state.isLoading}
+                    onChange={this.setFont}>
+                    {this.state.fonts.map((font, index) => {
+                      return (
+                        <option value={index} key={font.id}>{font.family}</option>
                       )
                     })}
                   </FormControl>

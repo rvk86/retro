@@ -1,8 +1,8 @@
 class Config {
   constructor() {
     this.facebookAppID = '198407367319295';
-    this.googleMapsApiKey = 'AIzaSyAy2awhVyQuvbdg0-3AzPZdUJpRejF9yj8';
-    
+    this.googleMapsApiKey = 'AIzaSyBjECHlDoNzrDJm-_PLKbl2vltu_8H9-_I';
+
     if(process.env.NODE_ENV === 'production') {
       this.facebookAppID = '198393670653998';
     }

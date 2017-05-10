@@ -57,11 +57,23 @@ class Map extends Component {
       // padding: `${0.05 * elWidth}px`,
       // fontSize: `${fontSize}px`
     };
+
+    this.titleStyle = {
+      fontFamily: nextProps.font.family
+    }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     //Weird hacky thing with react-google-maps: https://github.com/tomchentw/react-google-maps/issues/337
     window.google.maps.event.trigger(this._map.context['__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'], 'resize');
+
+    if(!this.props.font.family) return;
+    if(this.props.font.family == prevProps.font.family) return;
+    // Set selected font
+    let newFontFace = document.createElement('link');
+    newFontFace.href = `https://fonts.googleapis.com/css?family=${this.props.font.family.replace(' ', '+')}`;
+    newFontFace.rel = `stylesheet`;
+    document.head.appendChild(newFontFace);
   }
 
   render() {
@@ -73,7 +85,7 @@ class Map extends Component {
                     onMapMounted={(map) => { this._map = map; }}
                     onSearchBoxMounted={(searchBox) => { this._searchBox = searchBox; }}
                     boundsChanged={() => { this.props.onBoundsChanged(this._map); }} />
-        <div className="title">{this.props.title}</div>
+        <div className="title" style={this.titleStyle}>{this.props.title}</div>
       </div>
     );
   }
