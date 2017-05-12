@@ -56,7 +56,7 @@ def map(request):
     svg = map_row.randomize_path_colors(svg)
     map_row.save_svg(svg)
 
-    result = map_row.get_png(50)
+    result = map_row.get_png(50, True)
 
     return HttpResponse(result, content_type="image/png")
 

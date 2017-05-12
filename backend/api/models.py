@@ -98,13 +98,15 @@ class Map(models.Model):
 
         return border_img
 
-    def get_png(self, border_width):
+    def get_png(self, border_width, thumbnail=False):
         buffer_img = BytesIO()
         cairosvg.svg2png(bytestring=self.svg.read(), write_to=buffer_img)
 
         with Image.open(buffer_img) as img:
             img = self._set_png_bg_color(img)
             img = self._set_png_border(img, border_width)
+            if thumbnail:
+                img.thumbnail((400, 400), Image.ANTIALIAS)
             buffer_img.seek(0)
             img.save(buffer_img, format='png')
             buffer_img.seek(0)
