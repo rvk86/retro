@@ -45,17 +45,26 @@ class Map extends Component {
   }
 
   componentWillUpdate(nextProps) {
+    let MAX = 640;
     let el = ReactDOM.findDOMNode(this);
     let elWidth = el.getBoundingClientRect().width;
-    // let fontSize = 0.05 * elWidth;
-
     let ratio = nextProps.printSize.width / nextProps.printSize.height;
-    let height = elWidth * ratio;
+
+    let width, height;
+    if(ratio > 1) {
+      width = MAX;
+      height = width * ratio;
+    } else {
+      height = MAX;
+      width = height * ratio;
+    }
+    let scale = elWidth / width;
 
     this.mapStyle = {
+      width: `${width}px`,
       height: `${height}px`,
-      // padding: `${0.05 * elWidth}px`,
-      // fontSize: `${fontSize}px`
+      transform: `scale(${scale})`,
+      transformOrigin: `0 0`
     };
 
     this.titleStyle = {
@@ -69,6 +78,7 @@ class Map extends Component {
 
     if(!this.props.font.family) return;
     if(this.props.font.family == prevProps.font.family) return;
+
     // Set selected font
     let newFontFace = document.createElement('link');
     newFontFace.href = `https://fonts.googleapis.com/css?family=${this.props.font.family.replace(' ', '+')}`;
@@ -78,9 +88,9 @@ class Map extends Component {
 
   render() {
     return (
-      <div className="Map" style={this.mapStyle}>
+      <div className="Map">
         <MapElement containerElement={<div style={{ height: `100%` }} />}
-                    mapElement={<div style={{ height: `100%` }} />}
+                    mapElement={<div style={this.mapStyle} />}
                     defaultCenter={this.defaultCenter}
                     onMapMounted={(map) => { this._map = map; }}
                     onSearchBoxMounted={(searchBox) => { this._searchBox = searchBox; }}

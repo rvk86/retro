@@ -160,13 +160,13 @@ class App extends Component {
             <Col xs={12}>
               <PageHeader>Maps you love</PageHeader>
             </Col>
-            <Col xs={6}>
+            <Col sm={6}>
               <Map onBoundsChanged={this.setMapInfo}
                    printSize={this.state.printSize}
                    title={this.state.title}
                    font={this.state.font}/>
             </Col>
-            <Col xs={6}>
+            <Col sm={6}>
               <ColorSelector palettes={this.state.palettes}
                              paletteIndex={this.state.paletteIndex}
                              selectPalette={this.selectPalette}
